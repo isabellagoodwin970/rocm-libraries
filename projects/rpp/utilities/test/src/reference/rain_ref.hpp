@@ -74,15 +74,14 @@ namespace rain_detail {
 
 inline double blend_store(double v, DType dt, double alpha) {
     const double bg = (dt == DType::I8) ? -127.0 : 0.0;
-    const float out = (static_cast<float>(bg) - static_cast<float>(v)) * static_cast<float>(alpha) +
-                      static_cast<float>(v);
+    const double out = (bg - v) * (alpha) + (v);
     switch (dt) {
         case DType::U8:
-            return clampd(std::nearbyint(static_cast<double>(out)), 0.0, 255.0);
+            return clampd(std::nearbyint(out), 0.0, 255.0);
         case DType::I8:
-            return clampd(std::nearbyint(static_cast<double>(out)), -128.0, 127.0);
+            return clampd(std::nearbyint(out), -128.0, 127.0);
         default:
-            return clampd(static_cast<double>(out), 0.0, 1.0);  // F16/F32
+            return clampd(out, 0.0, 1.0);  // F16/F32
     }
 }
 
