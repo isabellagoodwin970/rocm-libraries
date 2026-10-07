@@ -1208,6 +1208,15 @@ RppStatus emboss_generic_host_tensor(T* srcPtr, RpptDescPtr srcDescPtr, T* dstPt
                                      RpptROIPtr roiTensorPtrSrc, RpptRoiType roiType,
                                      RppLayoutParams layoutParams, rpp::Handle& handle);
 
+// -------------------- bilateral_filter --------------------
+
+template <typename T>
+RppStatus bilateral_filter_host_tensor(T* srcPtr, RpptDescPtr srcDescPtr, T* dstPtr,
+                                       RpptDescPtr dstDescPtr, Rpp32f* stdDevColorTensor,
+                                       Rpp32f* stdDevSpaceTensor, Rpp32u kernelSize,
+                                       RpptROIPtr roiTensorPtrSrc, RpptRoiType roiType,
+                                       RppLayoutParams layoutParams, rpp::Handle& handle);
+
 /**************************************** GEOMETRIC AUGMENTATIONS
  * ****************************************/
 

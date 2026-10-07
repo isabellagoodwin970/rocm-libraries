@@ -219,6 +219,33 @@ RppStatus rppt_emboss(RppPtr_t srcPtr, RpptDescPtr srcDescPtr, RppPtr_t dstPtr,
                       RpptImageBorderType borderType, RpptROIPtr roiTensorPtrSrc,
                       RpptRoiType roiType, rppHandle_t rppHandle, RppBackend executionBackend);
 
+/*! \brief Bilateral filter augmentation (HOST/HIP)
+ * \details Edge-preserving smoothing: combines a spatial Gaussian with a range
+ *          (intensity) Gaussian so edges are preserved while flat regions blur.
+ *          Supports u8 via the tensor descriptors.
+ * \param [in]  srcPtr             source tensor in HOST/HIP memory
+ * \param [in]  srcDescPtr         source tensor descriptor
+ * \param [out] dstPtr             destination tensor in HOST/HIP memory
+ * \param [in]  dstDescPtr         destination tensor descriptor
+ * \param [in]  stdDevColorTensor  per-image range (intensity) std-dev     [batchSize]
+ * \param [in]  stdDevSpaceTensor  per-image spatial (geometric) std-dev   [batchSize]
+ * \param [in]  kernelSize         odd window size (e.g. 3, 5, 7, 9)
+ * \param [in]  borderType         border handling for out-of-bounds reads (Restrictions - 
+ * RpptImageBorderType::REPLICATE only mode supported)
+ * \param [in]  roiTensorPtrSrc    per-image ROI (xywh or ltrb)
+ * \param [in]  roiType            ROI interpretation
+ * \param [in]  rppHandle          RPP handle
+ * \param [in]  executionBackend   backend for execution, HOST or HIP
+ * \return A \ref RppStatus enumeration.
+ * \retval RPP_SUCCESS Successful completion.
+ * \retval RPP_ERROR* Unsuccessful completion.
+ */
+RppStatus rppt_bilateral_filter(RppPtr_t srcPtr, RpptDescPtr srcDescPtr, RppPtr_t dstPtr,
+                    RpptDescPtr dstDescPtr, Rpp32f* stdDevColorTensor, Rpp32f* stdDevSpaceTensor,
+                    Rpp32u kernelSize, RpptImageBorderType borderType,
+                    RpptROIPtr roiTensorPtrSrc, RpptRoiType roiType, rppHandle_t rppHandle,
+                    RppBackend executionBackend);
+ 
 /*! @}
  */
 
