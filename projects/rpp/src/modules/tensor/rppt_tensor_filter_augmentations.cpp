@@ -762,3 +762,44 @@ RppStatus rppt_emboss(RppPtr_t srcPtr, RpptDescPtr srcDescPtr, RppPtr_t dstPtr,
 
     return RPP_ERROR_INCOMPATIBLE_BACKEND;
 }
+
+/******************** bilateral_filter ********************/
+
+RppStatus rppt_bilateral_filter(RppPtr_t srcPtr, RpptDescPtr srcDescPtr, RppPtr_t dstPtr,
+                               RpptDescPtr dstDescPtr, Rpp32f* stdDevColorTensor, 
+                               Rpp32f* stdDevSpaceTensor,Rpp32u kernelSize,
+                               RpptImageBorderType borderType, RpptROIPtr roiTensorPtrSrc,
+                               RpptRoiType roiType, rppHandle_t rppHandle,
+                               RppBackend executionBackend) {
+    if ((kernelSize != 3) && (kernelSize != 5) && (kernelSize != 7) && (kernelSize != 9))
+        return RPP_ERROR_INVALID_ARGUMENTS;
+    for (int i = 0; i < srcDescPtr->n; i++)
+        if (stdDevColorTensor[i] <= 0 || stdDevSpaceTensor[i] <= 0) return RPP_ERROR_INVALID_ARGUMENTS;
+    if (srcDescPtr->dataType != dstDescPtr->dataType) return RPP_ERROR_INVALID_SRC_OR_DST_DATATYPE;
+    if ((srcDescPtr->layout != RpptLayout::NCHW) && (srcDescPtr->layout != RpptLayout::NHWC))
+        return RPP_ERROR_INVALID_SRC_LAYOUT;
+    if ((dstDescPtr->layout != RpptLayout::NCHW) && (dstDescPtr->layout != RpptLayout::NHWC))
+        return RPP_ERROR_INVALID_DST_LAYOUT;
+    if (srcDescPtr->n != dstDescPtr->n) return RPP_ERROR_INVALID_ARGUMENTS;
+
+    rpp::Handle& handle = rpp::deref(rppHandle);
+    [[maybe_unused]] RppBackend handleBackend = handle.GetBackend();
+
+    if (borderType != RpptImageBorderType::REPLICATE) return RPP_ERROR_NOT_IMPLEMENTED;
+
+    if (executionBackend == RppBackend::RPP_HOST_BACKEND) {
+        RppLayoutParams layoutParams = get_layout_params(srcDescPtr->layout, srcDescPtr->c);
+        
+        if ((srcDescPtr->dataType == RpptDataType::U8) &&
+            (dstDescPtr->dataType == RpptDataType::U8)) {
+            return bilateral_filter_host_tensor(
+                static_cast<Rpp8u*>(srcPtr) + srcDescPtr->offsetInBytes, srcDescPtr,
+                static_cast<Rpp8u*>(dstPtr) + dstDescPtr->offsetInBytes, dstDescPtr,
+                stdDevColorTensor, stdDevSpaceTensor, kernelSize, roiTensorPtrSrc, roiType,
+                layoutParams, handle);
+        } else
+                return RPP_ERROR_NOT_IMPLEMENTED;
+    }
+
+    return RPP_ERROR_INCOMPATIBLE_BACKEND;
+}
